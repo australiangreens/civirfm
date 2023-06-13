@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/Civirfm</base>
+  <class>ContactRfm</class>
+  <name>civicrm_contact_rfm</name>
+  <comment>RFM data for CiviCRM contacts</comment>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique ContactRfm ID</comment>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>contact_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Contact - should be unique within table</comment>
+  </field>
+  <foreignKey>
+    <name>contact_id</name>
+    <table>civicrm_contact</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>date_last_contrib</name>
+    <type>timestamp</type>
+    <comment>Date of last relevant contribution</comment>
+    <required>false</required>
+  </field>
+
+  <field>
+    <name>date_first_contrib</name>
+    <type>timestamp</type>
+    <comment>Date of first relevant contribution</comment>
+    <required>false</required>
+  </field>
+
+  <field>
+    <name>date_calculated</name>
+    <type>timestamp</type>
+    <comment>Date of last calculation of RFM values</comment>
+    <required>false</required>
+  </field>
+
+  <field>
+    <name>frequency</name>
+    <type>int unsigned</type>
+    <comment>Number of gifts in RFM period</comment>
+  </field>
+
+  <field>
+    <name>monetary</name>
+    <type>int unsigned</type>
+    <comment>Average gift value in RFM period</comment>
+  </field>
+</table>
