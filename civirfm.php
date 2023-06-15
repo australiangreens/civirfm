@@ -3,6 +3,7 @@
 require_once 'civirfm.civix.php';
 // phpcs:disable
 use CRM_Civirfm_ExtensionUtil as E;
+use CRM_Civirfm_Queue as Q;
 // phpcs:enable
 
 /**
@@ -32,33 +33,22 @@ function civirfm_civicrm_enable(): void {
   _civirfm_civix_civicrm_enable();
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_preProcess
- */
-//function civirfm_civicrm_preProcess($formName, &$form): void {
-//
-//}
-
 /**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
  */
-//function civirfm_civicrm_navigationMenu(&$menu): void {
-//  _civirfm_civix_insert_navigation_menu($menu, 'Mailings', [
-//    'label' => E::ts('New subliminal message'),
-//    'name' => 'mailing_subliminal_message',
-//    'url' => 'civicrm/mailing/subliminal',
-//    'permission' => 'access CiviMail',
-//    'operator' => 'OR',
-//    'separator' => 0,
-//  ]);
-//  _civirfm_civix_navigationMenu($menu);
-//}
+function civirfm_civicrm_navigationMenu(&$menu): void {
+ _civirfm_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', [
+   'label' => E::ts('CiviRFM Settings'),
+   'name' => 'civirfm_settings',
+   'url' => 'civicrm/admin/setting/civirfm',
+   'permission' => 'access civirfm',
+   'operator' => 'OR',
+   'separator' => 0,
+ ]);
+ _civirfm_civix_navigationMenu($menu);
+}
 
 /**
  * Implements hook_civicrm_permission().
@@ -94,4 +84,61 @@ function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
       'icon' => 'crm-i fa-usd',
     ];
   }
+}
+
+/**
+ * Implements hook_civicrm_post().
+ * 
+ * Every time a Contribution is created or edited and has a status of "Completed"
+ * we queue up a job to calculate the RFM values for the associated contact.
+ * 
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_post
+ */
+function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if ($objectName != 'Contribution' || ($op != 'create' && $op != 'edit')) {
+    return;
+  }
+  // Test for Completed contrib status, exit if not
+  if ($objectRef->contribution_status_id != CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Completed')) {
+    return;
+  }
+  // Grab contact ID and queue up a job
+  $objectRef->find(TRUE);
+  $params = [
+    'contact_id' => $objectRef->contact_id,
+  ];
+  $queue = Q::singleton()->getQueue();
+  $task = new CRM_Queue_Task(
+    ['CRM_Civirfm_Utils', 'calculateRFM'],
+    [$params]
+  );
+  $queue->createItem($task);
+  return;
+}
+
+/**
+ * Implements hook_civicrm_merge().
+ * 
+ * Whenever contacts are merged, check to see if either contact has RFM values.
+ * If so, queue up a job to calculate the RFM values for the surviving contact.
+ * 
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_merge
+ */
+function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL) {
+  $result = \Civi\Api4\ContactRfm::get(FALSE)
+    ->addSelect('id')
+    ->addClause('OR', ['contact_id', '=', $mainId], ['contact_id', '=', $otherId])
+    ->execute();
+  if ($result->rowCount) {
+    $params = [
+      'contact_id' => $mainId,
+    ];
+    $queue = Q::singleton()->getQueue();
+    $task = new CRM_Queue_Task(
+      ['CRM_Civirfm_Utils', 'calculateRFM'],
+      [$params]
+    );
+    $queue->createItem($task);
+  }
+  return;
 }
