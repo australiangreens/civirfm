@@ -5,8 +5,8 @@ namespace Civi\Api4\Action\Contact;
 use Civi\Api4\Generic\Result;
 
 /**
- * Calculate RFM values for the Contact. Upserts a ContactRfm entity record for
- * the contact.
+ * Calculate RFM values for the Contact. Uses CRM_Civirfm_Utils::calculateRFM
+ * to upsert ContactRfm entity record.
  * 
  * @method calculateRFM()
  */
@@ -21,14 +21,12 @@ class CalculateRFM extends \Civi\Api4\Generic\AbstractAction {
   protected $contactId;
 
    public function _run(Result $result) {
-    // get extension settings
-
-    // get Contact ID
-
-    // do things, stuff
-
-    // upsert ContactRfm record
-
-    // update $result and return
+    $data = \CRM_Civirfm_Utils::calculateRFM($this->contactId);
+    $result[] = [
+      'id' => $this->contactId,
+      'recency' => $data['recency'],
+      'frequency' => $data['frequency'],
+      'monetary' => $data['monetary']
+    ];
    }
 }

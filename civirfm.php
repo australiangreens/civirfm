@@ -102,6 +102,7 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectRef->contribution_status_id != CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Completed')) {
     return;
   }
+  // TODO: test for relevant fin type
   // Grab contact ID and queue up a job
   $objectRef->find(TRUE);
   $params = [
@@ -109,7 +110,7 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   ];
   $queue = Q::singleton()->getQueue();
   $task = new CRM_Queue_Task(
-    ['CRM_Civirfm_Utils', 'calculateRFM'],
+    ['CRM_Civirfm_Utils', 'processRFMTask'],
     [$params]
   );
   $queue->createItem($task);
@@ -130,12 +131,18 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     ->addClause('OR', ['contact_id', '=', $mainId], ['contact_id', '=', $otherId])
     ->execute();
   if ($result->rowCount) {
+    // delete existing records
+    foreach ($result as $rfm_record) {
+      \Civi\Api4\ContactRfm::delete(FALSE)
+        ->addWhere('id', '=', $rfm_record['id'])
+        ->execute();
+    }
     $params = [
       'contact_id' => $mainId,
     ];
     $queue = Q::singleton()->getQueue();
     $task = new CRM_Queue_Task(
-      ['CRM_Civirfm_Utils', 'calculateRFM'],
+      ['CRM_Civirfm_Utils', 'processRFMTask'],
       [$params]
     );
     $queue->createItem($task);
