@@ -30,7 +30,7 @@ return [
     'type' => 'Integer',
     'add' => '5.57',
     'is_contact' => 0,
-    'description' => E::ts('Contributions of these financial types will be used for RFM calculations'),
+    'description' => E::ts('Contributions of these financial types will be used for RFM calculations. If blank, contributions of all types will be used'),
     'title' => E::ts('RFM Financial Types'),
     'html_type' => 'entity_reference',
     'html_attributes' => [

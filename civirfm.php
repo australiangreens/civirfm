@@ -3,7 +3,6 @@
 require_once 'civirfm.civix.php';
 // phpcs:disable
 use CRM_Civirfm_ExtensionUtil as E;
-use CRM_Civirfm_Queue as Q;
 // phpcs:enable
 
 /**
@@ -102,13 +101,17 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($objectRef->contribution_status_id != CRM_Core_PseudoConstant::getKey('CRM_Contribute_BAO_Contribution', 'contribution_status_id', 'Completed')) {
     return;
   }
-  // TODO: test for relevant fin type
+  // Test for relevant financial type(s) if applicable, exit if not
+  $fin_types = (Civi::settings()->get('civirfm_fin_types')) ? explode(',', Civi::settings()->get('civirfm_fin_types')) : NULL;
+  if (!is_null($fin_types) && !in_array($objectRef->financial_type_id, $fin_types)) {
+    return;
+  }
   // Grab contact ID and queue up a job
   $objectRef->find(TRUE);
   $params = [
     'contact_id' => $objectRef->contact_id,
   ];
-  $queue = Q::singleton()->getQueue();
+  $queue = CRM_Civirfm_Queue::singleton()->getQueue();
   $task = new CRM_Queue_Task(
     ['CRM_Civirfm_Utils', 'processRFMTask'],
     [$params]
@@ -131,7 +134,7 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     ->addClause('OR', ['contact_id', '=', $mainId], ['contact_id', '=', $otherId])
     ->execute();
   if ($result->rowCount) {
-    // delete existing records
+    // Delete existing records
     foreach ($result as $rfm_record) {
       \Civi\Api4\ContactRfm::delete(FALSE)
         ->addWhere('id', '=', $rfm_record['id'])
@@ -140,7 +143,7 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     $params = [
       'contact_id' => $mainId,
     ];
-    $queue = Q::singleton()->getQueue();
+    $queue = CRM_Civirfm_Queue::singleton()->getQueue();
     $task = new CRM_Queue_Task(
       ['CRM_Civirfm_Utils', 'processRFMTask'],
       [$params]
