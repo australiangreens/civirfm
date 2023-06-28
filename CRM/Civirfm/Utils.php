@@ -30,7 +30,7 @@ class CRM_Civirfm_Utils {
       ->addOrderBy('receive_date', 'ASC')
       ->setLimit(0);
     if ($fin_types) {
-      $contribs->addWhere('financial_type_id', 'IN', $fin_types)
+      $contribs->addWhere('financial_type_id', 'IN', $fin_types);
     }
     $contribs->execute();
     $contribs = iterator_to_array($contribs);
