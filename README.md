@@ -27,11 +27,9 @@ The extension is licensed under [AGPL-3.0](LICENSE.txt).
 * CiviCRM 5.57+
 
 ## Installation (Web UI)
-
 Learn more about installing CiviCRM extensions in the [CiviCRM Sysadmin Guide](https://docs.civicrm.org/sysadmin/en/latest/customize/extensions/).
 
 ## Installation (CLI, Zip)
-
 Sysadmins and developers may download the `.zip` file for this extension and
 install it with the command-line tool [cv](https://github.com/civicrm/cv).
 
@@ -49,20 +47,45 @@ install it with the command-line tool [cv](https://github.com/civicrm/cv).
 git clone https://github.com/australiangreens/civirfm.git
 cv en civirfm
 ```
-
 ## Getting Started
 
-After installation carry out the following steps:
+After installation carry out the following steps.
 
-1. Configure the extension
+### Configure the extension
 
 Head to `/civicrm/admin/setting/civirfm` and specify the RMF period (whole years) and relevant financial type(s).
 
-2. Create a scheduled job for processing RFM calculation tasks
+### Review scheduled jobs for RFM processing
 
+The extension installs two scheduled jobs; one for calculating RFM values and another for finding expired RFM values and
+queuing them for recalculation.
 
+The jobs are set to run hourly and daily respectively; you may wish to change these schedules to better suit your requirements.
 
+## How it works
+
+Once configured, the extension queues jobs to calculate RFM values for contacts after relevant contributions are created or updated.
+
+The extension similarly queues calculation jobs when merging contacts if necessary.
+
+The scheduled job `CiviRFM calculation processing` processes these jobs and creates (or updates) RFM records accordingly.
+
+The scheduled job `CiviRFM find expired CiviRFM records` finds expired RFM records and queues them for recalculation
+
+## Technical notes
+
+The extension creates a new entity - ContactRfm - with its own table in the database (`civicrm_contact_rfm`) for storing RFM data.
+
+While scheduled jobs must use CiviCRM's APIv3 framework, the extension provides a complete set of APIv4 actions:
+
+* Contact.calculateRFM - calculate the RFM values for a contact and create (or update) a ContactRfm record 
+* ContactRfm.refreshExpired - find and queue expired ContactRfm records for recalculation
+* ContactRfm.runqueue - process queued jobs for calculating RFM values
+
+Therefore it's possible to avoid using Scheduled Jobs entirely and use cron jobs or similar to call the APIv4 actions
+to deliver all of the extension's functionality.
 
 ## Known Issues
 
-None.
+The ContactRfm.refreshexpired APIv3 action doesn't return a well-formed response payload in that the contents of the `values` key
+doesn't contain correct information. The action does perform its intended function regardless.
