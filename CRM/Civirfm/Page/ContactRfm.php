@@ -13,13 +13,16 @@ class CRM_Civirfm_Page_ContactRfm extends CRM_Core_Page {
       ->addWhere('contact_id', '=', $contactId)
       ->execute()
       ->first(); // we can safely assume there is only a single ContactRfm record per contact
-    
-    $this->assign('contactId', $contactId);
-    $this->assign('recency', $contactRfm['recency']);
-    $this->assign('frequency', $contactRfm['frequency']);
-    $this->assign('monetary', $contactRfm['monetary']);
-    $this->assign('date_calc', $contactRfm['date_calculated']);
-    $this->assign('rfm_time', \Civi::settings()->get('civirfm_rfm_period'));
+
+    if (isset($contactRfm['date_calculated'])) {
+      $this->assign('contactId', $contactId);
+      $this->assign('recency', $contactRfm['recency']);
+      $this->assign('frequency', $contactRfm['frequency']);
+      $this->assign('monetary', $contactRfm['monetary']);
+      $this->assign('date_calc', $contactRfm['date_calculated']);
+      $this->assign('rfm_time', \Civi::settings()->get('civirfm_rfm_period'));
+      $this->assign('curr_symbol', CRM_Core_Config::singleton()->defaultCurrencySymbol);
+    }
 
     // Set the user context
     $session = CRM_Core_Session::singleton();
