@@ -41,13 +41,14 @@ class CRM_Civirfm_Utils {
     $rfm_earliest_date = new DateTime();
     $rfm_earliest_date->sub(new DateInterval('P' . $rfm_period . 'Y'));
 
-    // Get all completed contribs of the right fin type(s),
+    // Get all completed >$0 contribs of the right fin type(s),
     // or all fin types if none are defined in the extension settings
     $contribs = \Civi\Api4\Contribution::get(FALSE)
       ->addSelect('id', 'total_amount', 'receive_date')
       ->addWhere('contact_id', '=', $contact_id)
       ->addWhere('contribution_status_id:label', '=', 'Completed')
       ->addWhere('receive_date', '>', $rfm_earliest_date->format('Y-m-d H:i:sP'))
+      ->addWhere('total_amount', '>', 0)
       ->addOrderBy('receive_date', 'ASC')
       ->setLimit(0);
     if ($fin_types) {
@@ -57,9 +58,9 @@ class CRM_Civirfm_Utils {
     $contribs = iterator_to_array($contribs);
 
     // Set up our return array
-    $result['recency'] = 0;
-    $result['frequency'] = 0;
-    $result['monetary'] = 0;
+    $result['recency'] = NULL;
+    $result['frequency'] = NULL;
+    $result['monetary'] = NULL;
     
     // If we have an empty array, we cannot calculate RFM values.
     // Delete any existing ContactRfm record and return.

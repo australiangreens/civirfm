@@ -79,7 +79,7 @@ The extension similarly queues calculation jobs when merging contacts if necessa
 
 The scheduled job `CiviRFM calculation processing` processes these jobs and creates (or updates) RFM records accordingly.
 
-The scheduled job `CiviRFM find expired CiviRFM records` finds expired RFM records and queues them for recalculation
+The scheduled job `CiviRFM find expired CiviRFM records` finds expired RFM records and queues them for recalculation.
 
 ## Technical notes
 
