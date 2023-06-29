@@ -9,11 +9,15 @@ The RFM values are calculated from contribution data, according to two configura
 1. RFM time period (years) - only contributions received between "now" and this many years ago are included
 2. RFM Financial Type(s) - only contributions of the stated financial types are included; if no types are specified all contributions are included
 
+![CiviRFM settings](/images/rfmsettings.png)
+
 RFM values can be viewed on a new RFM tab that is added to the tabset of the Contact view page. The values are defined as follows:
 
 - Recency - the number of days since the last eligible contribution
 - Frequency - the number of eligible contributions within the RFM period
 - Monetary - the average value of eligible contributions within the RFM period
+
+![CiviRFM contact tab](/images/rfmtab.png)
 
 The extension is licensed under [AGPL-3.0](LICENSE.txt).
 
