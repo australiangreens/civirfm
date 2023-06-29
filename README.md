@@ -51,6 +51,15 @@ cv en civirfm
 
 After installation carry out the following steps.
 
+### Update CMS user permissions
+
+The extension installs two permissions for administering and accessing the CiviRFM extension and its data.
+
+Load the CiviCRM User and Permissions page (`/civicrm/admin/access?reset=1`) and use the link to access your CMS
+permissions management page (eg. "Drupal Access Control" or "WordPress Access Control").
+
+Grant the "CiviRFM RFM extension: Administer" and "CiviRFM RFM Extension: Access CiviRFM" permissions as appropriate.
+
 ### Configure the extension
 
 Head to `/civicrm/admin/setting/civirfm` and specify the RMF period (whole years) and relevant financial type(s).
@@ -78,7 +87,7 @@ The extension creates a new entity - ContactRfm - with its own table in the data
 
 While scheduled jobs must use CiviCRM's APIv3 framework, the extension provides a complete set of APIv4 actions:
 
-* Contact.calculateRFM - calculate the RFM values for a contact and create (or update) a ContactRfm record 
+* Contact.calculateRFM - calculate the RFM values for a contact and create (or update) a ContactRfm record
 * ContactRfm.refreshExpired - find and queue expired ContactRfm records for recalculation
 * ContactRfm.runqueue - process queued jobs for calculating RFM values
 
