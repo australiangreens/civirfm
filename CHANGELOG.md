@@ -1,6 +1,6 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
-## [1.0.0] - 2023-07-03
+## [1.0.0-RC1] - 2023-06-29
 
-Initial release of the CiviRFM extension.
+Initial release candidate of the CiviRFM extension.

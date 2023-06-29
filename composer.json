@@ -1,10 +1,13 @@
 {
   "name": "australian_greens/civirfm",
   "description": "CiviCRM extension to implement the popular RFM fundraising model",
+  "homepage": "https://github.com/australiangreens/civirfm",
   "license": "AGPL-3.0-or-later",
   "require": {
     "composer/installers": "^1.6 || ^2"
   },
+  "support": "https://github.com/australiangreens/civirfm/issues",
   "type": "civicrm-ext",
+  "version": "1.0.0-RC1"
   }
 
