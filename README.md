@@ -96,7 +96,7 @@ to deliver all of the extension's functionality.
 
 ## Known Issues
 
-The ContactRfm.refreshexpired APIv3 action returns incorrect data in that thevalue of the `count` value inside
+The ContactRfm.refreshexpired APIv3 action returns incorrect data in that the value of the `count` value inside
 the `values` array isn't accurate. The top-level `count` value in the return object is correct however.
 
 The action does perform its intended function regardless.

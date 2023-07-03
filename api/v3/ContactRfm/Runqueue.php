@@ -29,7 +29,7 @@ function civicrm_api3_contact_rfm_Runqueue($params) {
   // retrieve the queue
   $queue = CRM_Civirfm_Queue::singleton()->getQueue();
   $runner = new CRM_Queue_Runner([
-    'title' => E::ts('CiviRFM Quueu Runner'),
+    'title' => E::ts('CiviRFM Queue Runner'),
     'queue' => $queue,
     'errorMode' => CRM_Queue_Runner::ERROR_CONTINUE,
   ]);

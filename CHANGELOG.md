@@ -1,6 +1,14 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [1.0.1] - 2023-07-03
+
+### Added
+Human readable titles to RFM queue tasks
+
+### Changed
+Fixed a couple of typos
+
 ## [1.0.0] - 2023-06-30
 
 ### Changed

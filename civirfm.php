@@ -114,7 +114,8 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   $queue = CRM_Civirfm_Queue::singleton()->getQueue();
   $task = new CRM_Queue_Task(
     ['CRM_Civirfm_Utils', 'processRFMTask'],
-    [$params]
+    [$params],
+    'Calculate RFM values'
   );
   $queue->createItem($task);
   return;
@@ -146,7 +147,8 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     $queue = CRM_Civirfm_Queue::singleton()->getQueue();
     $task = new CRM_Queue_Task(
       ['CRM_Civirfm_Utils', 'processRFMTask'],
-      [$params]
+      [$params],
+      'Calculate RFM values'
     );
     $queue->createItem($task);
   }
