@@ -49,6 +49,7 @@ class CRM_Civirfm_Utils {
       ->addWhere('contribution_status_id:label', '=', 'Completed')
       ->addWhere('receive_date', '>', $rfm_earliest_date->format('Y-m-d H:i:sP'))
       ->addWhere('total_amount', '>', 0)
+      ->addWhere('is_test', '=', 0)
       ->addOrderBy('receive_date', 'ASC')
       ->setLimit(0);
     if ($fin_types) {
