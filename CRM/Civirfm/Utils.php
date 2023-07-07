@@ -69,7 +69,7 @@ class CRM_Civirfm_Utils {
       $result = \Civi\Api4\ContactRfm::delete(FALSE)
         ->addWhere('contact_id', '=', $contact_id)
         ->execute();
-      return;
+      return $result;
     }
     // Calculate RFM values
     $date_first = $contribs[0]['receive_date'];
