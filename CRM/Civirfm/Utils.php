@@ -66,7 +66,7 @@ class CRM_Civirfm_Utils {
     // If we have an empty array, we cannot calculate RFM values.
     // Delete any existing ContactRfm record and return.
     if (empty($contribs)) {
-      $result = \Civi\Api4\ContactRfm::delete(FALSE)
+      \Civi\Api4\ContactRfm::delete(FALSE)
         ->addWhere('contact_id', '=', $contact_id)
         ->execute();
       return $result;
