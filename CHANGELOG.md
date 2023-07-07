@@ -1,6 +1,11 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [1.0.3] - 2023-07-07
+
+### Changed
+Fixed a logic bug in the CRM_Civirfm_Utils::calculateRFM()
+
 ## [1.0.2] - 2023-07-03
 
 ### Added
