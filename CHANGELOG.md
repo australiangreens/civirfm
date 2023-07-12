@@ -1,6 +1,12 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [1.1.0] - 2023-07-12
+
+### Added
+Ability to set a maximum procesing time for the ContactRfm.runqueue action.
+Defaults to 600 seconds if parameter `max_runtime` is not supplied to API call.
+
 ## [1.0.3] - 2023-07-07
 
 ### Changed

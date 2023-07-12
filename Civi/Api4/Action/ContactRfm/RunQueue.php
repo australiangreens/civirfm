@@ -14,7 +14,14 @@ use CRM_Queue_Runner;
  */
 class RunQueue extends \Civi\Api4\Generic\AbstractAction {
 
-   public function _run(Result $result) {
+  /**
+   * Maximum runtime for queue processing (seconds)
+   * 
+   * @var int
+   */
+  protected $maxRunTime = 600;
+
+  public function _run(Result $result) {
     $queue = CRM_Civirfm_Queue::singleton()->getQueue();
     $runner = new CRM_Queue_Runner([
       'title' => E::ts('CiviRFM Queue Runner'),
@@ -22,16 +29,15 @@ class RunQueue extends \Civi\Api4\Generic\AbstractAction {
       'errorMode' => CRM_Queue_Runner::ERROR_CONTINUE,
     ]);
 
-    // stop executing next item after 5 minutes
-    $maxRunTime = time() + 600;
+    $stopTime = time() + $maxRunTime;
     $continue = TRUE;
-    while (time() < $maxRunTime && $continue) {
+    while (time() < $stopTime && $continue) {
       $output = $runner->runNext();
       if (!$output['is_continue']) {
         // all items in the queue are processed
         $continue = FALSE;
       }
       $result[] = $output;
-   }
+    }
   }
 }

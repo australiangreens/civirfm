@@ -6,6 +6,7 @@ namespace Civi\Api4;
  *
  * Provided by the civirfm extension.
  *
+ * @searchable secondary
  * @package Civi\Api4
  */
 class ContactRfm extends Generic\DAOEntity {

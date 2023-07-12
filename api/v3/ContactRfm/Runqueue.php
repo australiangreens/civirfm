@@ -10,6 +10,10 @@ use CRM_Civirfm_ExtensionUtil as E;
  * @see https://docs.civicrm.org/dev/en/latest/framework/api-architecture/
  */
 function _civicrm_api3_contact_rfm_Runqueue_spec(&$spec) {
+  $spec['max_runtime'] = [
+    'title' => E::ts('Maximum queue processing time (seconds)'),
+    'type' => CRM_Utils_Type::T_INT,
+  ];
 }
 
 /**
@@ -34,10 +38,10 @@ function civicrm_api3_contact_rfm_Runqueue($params) {
     'errorMode' => CRM_Queue_Runner::ERROR_CONTINUE,
   ]);
 
-  // stop executing next item after 5 minutes
-  $maxRunTime = time() + 600;
+  // stop executing next item after $max_runtime or 5 minutes
+  $stopTime = time() + (is_null($params['max_runtime']) ? 600 : $params['max_runtime']);
   $continue = TRUE;
-  while (time() < $maxRunTime && $continue) {
+  while (time() < $stopTime && $continue) {
     $result = $runner->runNext();
     if (!$result['is_continue']) {
       // all items in the queue are processed
