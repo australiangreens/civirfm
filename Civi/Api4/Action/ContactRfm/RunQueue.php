@@ -9,15 +9,15 @@ use CRM_Queue_Runner;
 
 /**
  * Process queued RFM jobs.
- * 
+ *
  * @method runQueue()
  */
 class RunQueue extends \Civi\Api4\Generic\AbstractAction {
 
   /**
    * Maximum runtime for queue processing (seconds)
-   * 
-   * @var int
+   *
+   * @var int|null
    */
   protected $maxRunTime = 600;
 
