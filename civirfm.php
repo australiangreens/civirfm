@@ -106,11 +106,28 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if (!is_null($fin_types) && !in_array($objectRef->financial_type_id, $fin_types)) {
     return;
   }
+  if (\CRM_Core_Transaction::isActive()) {
+    \CRM_Core_Transaction::addCallback(\CRM_Core_Transaction::PHASE_POST_COMMIT, 'civirfm_post_contribution_callback', [$objectId]);
+  }
+  else {
+    civirfm_post_contribution_callback($objectId);
+  }
+  return;
+}
+
+
+function civirfm_post_contribution_callback($objectId) {
   // Grab contact ID and queue up a job
-  $objectRef->find(TRUE);
+  $dao = new CRM_Contribute_DAO_Contribution();
+  $dao->id = $objectId;
+  $dao->find(TRUE);
   $params = [
-    'contact_id' => $objectRef->contact_id,
+    'contact_id' => $dao->contact_id,
   ];
+  civirfm_create_queue_task($params);
+}
+
+function civirfm_create_queue_task($params) {
   $queue = CRM_Civirfm_Queue::singleton()->getQueue();
   $task = new CRM_Queue_Task(
     ['CRM_Civirfm_Utils', 'processRFMTask'],
@@ -118,7 +135,6 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     'Calculate RFM values'
   );
   $queue->createItem($task);
-  return;
 }
 
 /**
@@ -144,13 +160,7 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     $params = [
       'contact_id' => $mainId,
     ];
-    $queue = CRM_Civirfm_Queue::singleton()->getQueue();
-    $task = new CRM_Queue_Task(
-      ['CRM_Civirfm_Utils', 'processRFMTask'],
-      [$params],
-      'Calculate RFM values'
-    );
-    $queue->createItem($task);
+    civirfm_create_queue_task($params);
   }
   return;
 }
