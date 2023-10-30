@@ -66,7 +66,7 @@ function civirfm_civicrm_permission(&$permissions) {
 
 /**
  * Implements hook_civicrm_tabset().
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_tabset
  */
 function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
@@ -87,13 +87,13 @@ function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
 
 /**
  * Implements hook_civicrm_post().
- * 
+ *
  * Every time a Contribution is created or edited and has a status of "Completed"
  * we queue up a job to calculate the RFM values for the associated contact.
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_post
  */
-function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+function civirfm_civicrm_postCommit($op, $objectName, $objectId, &$objectRef) {
   if ($objectName != 'Contribution' || ($op != 'create' && $op != 'edit')) {
     return;
   }
@@ -106,15 +106,9 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if (!is_null($fin_types) && !in_array($objectRef->financial_type_id, $fin_types)) {
     return;
   }
-  if (\CRM_Core_Transaction::isActive()) {
-    \CRM_Core_Transaction::addCallback(\CRM_Core_Transaction::PHASE_POST_COMMIT, 'civirfm_post_contribution_callback', [$objectId]);
-  }
-  else {
-    civirfm_post_contribution_callback($objectId);
-  }
+  civirfm_post_contribution_callback($objectId);
   return;
 }
-
 
 function civirfm_post_contribution_callback($objectId) {
   // Grab contact ID and queue up a job
@@ -139,10 +133,10 @@ function civirfm_create_queue_task($params) {
 
 /**
  * Implements hook_civicrm_merge().
- * 
+ *
  * Whenever contacts are merged, check to see if either contact has RFM values.
  * If so, queue up a job to calculate the RFM values for the surviving contact.
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_merge
  */
 function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL) {
