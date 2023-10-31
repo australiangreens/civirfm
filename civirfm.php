@@ -66,7 +66,7 @@ function civirfm_civicrm_permission(&$permissions) {
 
 /**
  * Implements hook_civicrm_tabset().
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_tabset
  */
 function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
@@ -87,13 +87,13 @@ function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
 
 /**
  * Implements hook_civicrm_post().
- * 
+ *
  * Every time a Contribution is created or edited and has a status of "Completed"
  * we queue up a job to calculate the RFM values for the associated contact.
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_post
  */
-function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+function civirfm_civicrm_postCommit($op, $objectName, $objectId, &$objectRef) {
   if ($objectName != 'Contribution' || ($op != 'create' && $op != 'edit')) {
     return;
   }
@@ -106,11 +106,22 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if (!is_null($fin_types) && !in_array($objectRef->financial_type_id, $fin_types)) {
     return;
   }
+  civirfm_post_contribution_callback($objectId);
+  return;
+}
+
+function civirfm_post_contribution_callback($objectId) {
   // Grab contact ID and queue up a job
-  $objectRef->find(TRUE);
+  $dao = new CRM_Contribute_DAO_Contribution();
+  $dao->id = $objectId;
+  $dao->find(TRUE);
   $params = [
-    'contact_id' => $objectRef->contact_id,
+    'contact_id' => $dao->contact_id,
   ];
+  civirfm_create_queue_task($params);
+}
+
+function civirfm_create_queue_task($params) {
   $queue = CRM_Civirfm_Queue::singleton()->getQueue();
   $task = new CRM_Queue_Task(
     ['CRM_Civirfm_Utils', 'processRFMTask'],
@@ -118,15 +129,14 @@ function civirfm_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     'Calculate RFM values'
   );
   $queue->createItem($task);
-  return;
 }
 
 /**
  * Implements hook_civicrm_merge().
- * 
+ *
  * Whenever contacts are merged, check to see if either contact has RFM values.
  * If so, queue up a job to calculate the RFM values for the surviving contact.
- * 
+ *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_merge
  */
 function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $tables = NULL) {
@@ -144,13 +154,7 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     $params = [
       'contact_id' => $mainId,
     ];
-    $queue = CRM_Civirfm_Queue::singleton()->getQueue();
-    $task = new CRM_Queue_Task(
-      ['CRM_Civirfm_Utils', 'processRFMTask'],
-      [$params],
-      'Calculate RFM values'
-    );
-    $queue->createItem($task);
+    civirfm_create_queue_task($params);
   }
   return;
 }
