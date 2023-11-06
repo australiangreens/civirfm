@@ -1,6 +1,18 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [1.2.1] - 2023-11-06
+
+### Changed
+Fixed a bug in the use of $maxRunTime in the processing of queued
+RFM calculation jobs.
+
+## [1.2.0] - 2023-10-31
+
+### Changed
+Shifted from civicrm_post() to civicrm_postCommit() hook function to
+reduce the risk of deadlocks within a transaction context.
+
 ## [1.1.0] - 2023-07-12
 
 ### Added
