@@ -12,6 +12,7 @@ use CRM_Civirfm_ExtensionUtil as E;
  */
 function civirfm_civicrm_config(&$config): void {
   _civirfm_civix_civicrm_config($config);
+  Civi::service('dispatcher')->addListener('hook_civicrm_navigationMenu', 'civirfm_symfony_navigationMenu', 100);
 }
 
 /**
@@ -37,16 +38,18 @@ function civirfm_civicrm_enable(): void {
  *
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
  */
-function civirfm_civicrm_navigationMenu(&$menu): void {
- _civirfm_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', [
-   'label' => E::ts('CiviRFM Settings'),
-   'name' => 'civirfm_settings',
-   'url' => 'civicrm/admin/setting/civirfm',
-   'permission' => 'access civirfm',
-   'operator' => 'OR',
-   'separator' => 0,
- ]);
- _civirfm_civix_navigationMenu($menu);
+function civirfm_symfony_navigationMenu($event): void {
+  $hook_values = $event->getHookValues();
+  $menu = &$hook_values[0];
+  _civirfm_civix_insert_navigation_menu($menu, 'Administer/CiviModels', [
+    'label' => E::ts('Donor RFM Model Settings'),
+    'name' => 'civirfm_settings',
+    'url' => 'civicrm/admin/setting/civirfm',
+    'permission' => 'administer civirfm',
+    'operator' => 'OR',
+    'separator' => 0,
+  ]);
+  _civirfm_civix_navigationMenu($menu);
 }
 
 /**
@@ -55,34 +58,13 @@ function civirfm_civicrm_navigationMenu(&$menu): void {
 function civirfm_civicrm_permission(&$permissions) {
   $prefix = E::ts('CiviCRM RFM extension: ');
   $permissions['administer civirfm'] = [
-    $prefix . E::ts('Administer CiviRFM'),
-    E::ts('Manage RFM settings')
+    'label' => $prefix . E::ts('Administer CiviRFM'),
+    'description' => E::ts('Manage RFM settings')
   ];
   $permissions['access civirfm'] = [
-    $prefix . E::ts('Access CiviRFM'),
-    E::ts('Access CiviRFM')
+    'label' => $prefix . E::ts('Access CiviRFM'),
+    'description' => E::ts('View CiviRFM data')
   ];
-}
-
-/**
- * Implements hook_civicrm_tabset().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_tabset
- */
-function civirfm_civicrm_tabset($tabsetName, &$tabs, $context) {
-  if ($tabsetName === 'civicrm/contact/view' && CRM_Core_Permission::check('access civirfm')) {
-    // add a tab to the contact summary screen
-    $contactId = $context['contact_id'];
-    $url = CRM_Utils_System::url('civicrm/contact/view/rfm', ['cid' => $contactId]);
-
-    $tabs[] = [
-      'id' => 'rfm_contact',
-      'url' => $url,
-      'title' => E::ts('RFM'),
-      'weight' => 1,
-      'icon' => 'crm-i fa-usd',
-    ];
-  }
 }
 
 /**
@@ -157,4 +139,36 @@ function civirfm_civicrm_merge($type, &$data, $mainId = NULL, $otherId = NULL, $
     civirfm_create_queue_task($params);
   }
   return;
+}
+
+/**
+ * Implements hook_displayCiviModelData().
+ *
+ * Builds data payload for CiviModels extension display
+ *
+ * @link https://github.com/australiangreens/
+ */
+function civirfm_civimodels_displayCiviModelData($contact_id, &$data) {
+  if (!CRM_Core_Permission::check('access civirfm')) {
+    return;
+  }
+  $contactRfm = \Civi\Api4\ContactRfm::get(FALSE)
+  ->addSelect('id', 'contact_id', 'recency', 'frequency', 'monetary', 'date_calculated')
+  ->addWhere('contact_id', '=', $contact_id)
+  ->execute()
+  ->first(); // we can safely assume there is only a single ContactRfm record per contact
+
+  if (isset($contactRfm['date_calculated'])) {
+    $civirfm = [
+      'contact_id' => $contact_id,
+      'recency' => $contactRfm['recency'],
+      'frequency' => $contactRfm['frequency'],
+      'monetary' => $contactRfm['monetary'],
+      'date_calculated' => $contactRfm['date_calculated'],
+      'rfm_time' => \Civi::settings()->get('civirfm_rfm_period'),
+      'curr_symbol' => CRM_Core_Config::singleton()->defaultCurrencySymbol,
+      'template' => 'CRM/Civirfm/Page/ContactRfm.tpl'
+    ];
+    $data['civirfm'] = $civirfm;
+  }
 }

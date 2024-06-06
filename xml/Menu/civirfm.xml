@@ -4,12 +4,6 @@
     <path>civicrm/admin/setting/civirfm</path>
     <page_callback>CRM_Admin_Form_Generic</page_callback>
     <title>Configure CiviRFM</title>
-    <access_arguments>access civirfm</access_arguments>
-  </item>
-  <item>
-    <path>civicrm/contact/view/rfm</path>
-    <page_callback>CRM_Civirfm_Page_ContactRfm</page_callback>
-    <title>ContactRfm</title>
-    <access_arguments>access civirfm</access_arguments>
+    <access_arguments>administer civirfm</access_arguments>
   </item>
 </menu>
