@@ -1,5 +1,5 @@
 <div class='crm-content-block'>
-  <h4>{ts}RFM fundraising information{/ts}</h4>
+  <h4>{ts}RFM Fundraising{/ts}</h4>
     {if isset($model.date_calculated)}
     {* We have RFM values to display *}
     <table class="report-layout" style="max-width: 500px;">
