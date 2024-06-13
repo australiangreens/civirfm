@@ -170,5 +170,7 @@ function civirfm_civimodels_displayCiviModelData($contact_id, &$data) {
       'template' => 'CRM/Civirfm/Page/ContactRfm.tpl'
     ];
     $data['civirfm'] = $civirfm;
+  } else {
+    $data['civirfm'] = ['date_calculated' => NULL];
   }
 }
