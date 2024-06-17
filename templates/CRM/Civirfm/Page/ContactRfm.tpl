@@ -1,3 +1,4 @@
+{crmScope extensionKey="civirfm'}
 <div class='crm-content-block'>
   <h4>{ts}RFM Fundraising{/ts}</h4>
     {if isset($model.date_calculated)}
@@ -28,3 +29,4 @@
     <p>No RFM data exists for this contact</p>
   {/if}
 </div>
+{/crmScope}
