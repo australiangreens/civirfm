@@ -1,11 +1,11 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
-## [2.0.0] - 2024-06-07
+## [2.0.0] - 2024-06-17
 
 ### Changed
 The CiviRFM extension now makes use of the [CiviModels](https://github.com/australiangreens/civimodels) extension
-for presentation of data on individual contact records. It is not possible to install this extension by itself.
+for presentation of data on individual contact records. It is no longer possible to install this extension by itself.
 
 Future work may look to refactor the codebase to enable standalone use. For now however, installation of
 the other extension is required. See the CiviModels repository for more information.
