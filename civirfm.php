@@ -171,6 +171,6 @@ function civirfm_civimodels_displayCiviModelData($contact_id, &$data) {
     ];
     $data['civirfm'] = $civirfm;
   } else {
-    $data['civirfm'] = ['date_calculated' => NULL];
+    return;
   }
 }

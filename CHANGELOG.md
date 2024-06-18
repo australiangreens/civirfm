@@ -1,6 +1,12 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [2.0.1] - 2024-06-19
+
+### Changed
+- Fixed issue where Models tab would render empty content for contacts with no RFM record
+- Fixed unbalanced single/double quotes in Smarty template
+
 ## [2.0.0] - 2024-06-17
 
 ### Changed
