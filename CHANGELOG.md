@@ -1,6 +1,15 @@
 # Changelog
 All notable changes for the CiviRFM extension will be noted here.
 
+## [3.0.0] - 2024-10-08
+
+### Changed
+BREAKING: The extension now uses [Entity Framework version 2](https://civicrm.org/blog/colemanw/what-xml-where-did-dao-go).
+This ensures the extension cannot be used on versions of CiviCRM earlier than 5.44 (though the minimum supported version is 5.70).
+
+### Updated
+- Ran `civix upgrade` to upgrade mixin versions, etc.
+
 ## [2.0.1] - 2024-06-19
 
 ### Changed
