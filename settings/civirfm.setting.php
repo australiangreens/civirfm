@@ -27,7 +27,7 @@ return [
   'civirfm_fin_types' => [
     'name' => 'civirfm_fin_types',
     'filter' => 'civirfm',
-    'type' => 'Integer',
+    'type' => 'String',
     'add' => '5.57',
     'is_contact' => 0,
     'description' => E::ts('Contributions of these financial types will be used for RFM calculations. If blank, contributions of all types will be used'),
